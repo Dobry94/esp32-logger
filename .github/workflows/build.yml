@@ -47,24 +47,15 @@ jobs:
     - name: Compile firmware
       run: |
         arduino-cli compile --fqbn esp32:esp32:esp32 . --output-dir build --export-binaries
-<<<<<<< HEAD
 
     - name: List build folder
       run: ls -R build
-=======
->>>>>>> 9dbac17b7343fc2f72c60b5bb606e3e896e0cce4
 
-    - name: List build folder
-      run: ls -R build
     - name: Copy firmware to folder
       run: |
         mkdir -p firmware
         cp build/esp32-logger.ino.bin firmware/firmware.bin
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 9dbac17b7343fc2f72c60b5bb606e3e896e0cce4
     - name: Commit firmware and version bump
       uses: stefanzweifel/git-auto-commit-action@v4
       with:
