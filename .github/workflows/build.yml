@@ -51,10 +51,11 @@ jobs:
     - name: List build folder
       run: ls -R build
 
-    - name: Copy firmware to folder
+        - name: Copy firmware to folder
       run: |
         mkdir -p firmware
-        cp build/*.bin firmware/firmware.bin
+        cp build/esp32-logger.ino.bin firmware/firmware.bin
+
 
     - name: Commit firmware and version bump
       uses: stefanzweifel/git-auto-commit-action@v4
