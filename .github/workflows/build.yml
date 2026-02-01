@@ -24,9 +24,9 @@ jobs:
       id: version
       run: |
         if [ -f firmware/version.txt ]; then
-          echo "current=$(cat firmware/version.txt)" >> $GITHUB_OUTPUT
+          echo "current=$(cat firmware/version.txt)" >> "$GITHUB_OUTPUT"
         else
-          echo "current=1.0.0" >> $GITHUB_OUTPUT
+          echo "current=1.0.0" >> "$GITHUB_OUTPUT"
         fi
 
     - name: Bump version
@@ -37,9 +37,24 @@ jobs:
         PATCH=$((PATCH+1))
         NEW="$MAJ.$MIN.$PATCH"
         echo "$NEW" > firmware/version.txt
-        echo "new=$NEW" >> $GITHUB_OUTPUT
+        echo "new=$NEW" >> "$GITHUB_OUTPUT"
 
     - name: Inject version into code
       run: |
         echo "#pragma once" > version.h
-        echo "#define FW_VERSION \"${{ steps.bump.outputs.new
+        echo "#define FW_VERSION \"${{ steps.bump.outputs.new }}\"" >> version.h
+
+    - name: Compile firmware
+      run: |
+        arduino-cli compile --fqbn esp32:esp32:esp32doit-devkit-v1 . --output-dir build --export-binaries
+
+    - name: Copy firmware to folder
+      run: |
+        mkdir -p firmware
+        cp build/*.bin firmware/firmware.bin
+
+    - name: Commit firmware and version bump
+      uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: "Auto-build firmware ${{ steps.bump.outputs.new }}"
+        file_pattern: firmware/*
