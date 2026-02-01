@@ -42,19 +42,4 @@ jobs:
     - name: Inject version into code
       run: |
         echo "#pragma once" > version.h
-        echo "#define FW_VERSION \"${{ steps.bump.outputs.new }}\"" >> version.h
-
-    - name: Compile firmware
-      run: |
-        arduino-cli compile --fqbn esp32:esp32:esp32doit-devkit-v1 . --output-dir build
-
-    - name: Copy firmware to folder
-      run: |
-        mkdir -p firmware
-        cp build/*.bin firmware/firmware.bin
-
-    - name: Commit firmware and version bump
-      uses: stefanzweifel/git-auto-commit-action@v4
-      with:
-        commit_message: "Auto-build firmware ${{ steps.bump.outputs.new }}"
-        file_pattern: firmware/*
+        echo "#define FW_VERSION \"${{ steps.bump.outputs.new
