@@ -5,7 +5,7 @@
 const char* WIFI_SSID = "NETIASPOT-nTE2";
 const char* WIFI_PASS = "eJYfChyPUs7aX";
 
-const char* VERSION = "1.0.0";  // aktualna wersja wgrana na ESP32
+const char* VERSION = "1.0.1";  // aktualna wersja wgrana na ESP32
 
 const char* VERSION_URL = "https://raw.githubusercontent.com/Dobry94/esp32-logger/refs/heads/main/firmware/version.txt";
 const char* FIRMWARE_URL = "https://raw.githubusercontent.com/Dobry94/esp32-logger/refs/heads/main/firmware/firmware.bin";
