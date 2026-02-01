@@ -48,7 +48,7 @@ jobs:
 
     - name: Compile firmware
       run: |
-        arduino-cli compile --fqbn esp32:esp32:esp32doit-devkit-v1 . --output-dir build
+arduino-cli compile --fqbn esp32:esp32:esp32doit-devkit-v1 ./esp32-logger.ino --output-dir build
 
     - name: Copy firmware to folder
       run: |
