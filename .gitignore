@@ -1,1 +1,15 @@
+# Arduino build files
+build/
+*.elf
+*.bin
+*.hex
+
+# VSCode
+.vscode/
+
+# MacOS
+.DS_Store
+
+# Logs
+*.log
 
