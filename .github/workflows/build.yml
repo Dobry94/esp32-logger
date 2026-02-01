@@ -1,11 +1,8 @@
-name: Build and Auto-Version ESP32 Firmware
+name: Build and Release ESP32 Firmware
 
 on:
   push:
     branches: [ "main" ]
-
-permissions:
-  contents: write
 
 jobs:
   build:
@@ -14,13 +11,11 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Install Arduino CLI
+    - name: Set up Arduino CLI
       uses: arduino/setup-arduino-cli@v1
 
-    - name: Install ESP32 core
+    - name: Install ESP32 platform
       run: |
         arduino-cli core update-index
         arduino-cli core install esp32:esp32
@@ -28,8 +23,11 @@ jobs:
     - name: Read current version
       id: version
       run: |
-        VER=$(cat firmware/version.txt)
-        echo "current=$VER" >> $GITHUB_OUTPUT
+        if [ -f firmware/version.txt ]; then
+          echo "current=$(cat firmware/version.txt)" >> $GITHUB_OUTPUT
+        else
+          echo "current=1.0.0" >> $GITHUB_OUTPUT
+        fi
 
     - name: Bump version
       id: bump
@@ -48,19 +46,15 @@ jobs:
 
     - name: Compile firmware
       run: |
-      arduino-cli compile --fqbn esp32:esp32:esp32doit-devkit-v1 ./esp32-logger.ino --output-dir build
+        arduino-cli compile --fqbn esp32:esp32:esp32doit-devkit-v1 . --output-dir build
 
     - name: Copy firmware to folder
       run: |
         mkdir -p firmware
         cp build/*.bin firmware/firmware.bin
 
-    - name: Commit updated version and firmware
-      run: |
-        git config user.name "github-actions"
-        git config user.email "github-actions@github.com"
-        git add firmware/version.txt version.h firmware/firmware.bin
-        git commit -m "Auto-version: ${{ steps.bump.outputs.new }}" || echo "No changes to commit"
-        git push
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Commit firmware and version bump
+      uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: "Auto-build firmware ${{ steps.bump.outputs.new }}"
+        file_pattern: firmware/*
