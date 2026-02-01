@@ -61,3 +61,5 @@ jobs:
       with:
         commit_message: "Auto-build firmware ${{ steps.bump.outputs.new }}"
         file_pattern: firmware/*
+- name: List build folder
+  run: ls -R build
