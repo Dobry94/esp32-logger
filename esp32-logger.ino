@@ -105,6 +105,6 @@ void loop() {
   if (millis() - last >= UPDATE_FREQUENCY_IN_MS) {
     last = millis();
     checkForUpdate();
-    Serial.println("DZIAŁA");
+    Serial.println("DZIAŁA123");
   }
 }
