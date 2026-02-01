@@ -1,6 +1,7 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <Update.h>
+#define UPDATE_FREQUENCY_IN_MS 60*1000 //60sek
 
 const char* WIFI_SSID = "NETIASPOT-nTE2";
 const char* WIFI_PASS = "eJYfChyPUs7aX";
@@ -92,9 +93,9 @@ void setup() {
 
 void loop() {
   // normalna logika
-    static unsigned long last = 0;
-  if (millis() - last >= 1000) {
+  static unsigned long last = 0;
+  if (millis() - last >= UPDATE_FREQUENCY_IN_MS) {
     last = millis();
-    checkForUpdate();}
+    checkForUpdate();} /*1min min, 5min urządzenia w terenie, 1h standard IoT, najlepiej ustawiać w parametrach na stronie/excel*/
     Serial.println("Siemanko"); //test actions
 }
