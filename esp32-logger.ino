@@ -97,5 +97,5 @@ void loop() {
   if (millis() - last >= UPDATE_FREQUENCY_IN_MS) {
     last = millis();
     checkForUpdate();} /*1min min, 5min urządzenia w terenie, 1h standard IoT, najlepiej ustawiać w parametrach na stronie/excel*/
-  if(millis() - last >=1000)  Serial.println("123"); //test actions
+  if(millis() - last >=1000)  Serial.println("345"); //test actions
 }
