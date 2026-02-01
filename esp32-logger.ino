@@ -23,7 +23,6 @@ void checkForUpdate() {
   String newVersion = http.getString();
   newVersion.trim();
   http.end();
-
   Serial.print("Current: ");
   Serial.println(VERSION);
   Serial.print("Available: ");
