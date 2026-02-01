@@ -53,18 +53,11 @@ jobs:
 
     - name: Copy firmware to folder
       run: |
-        mkdir -p firmware
-        cp build/esp32-logger.ino.bin firmware/firmware.bin
+        mkdir -p "${{ github.workspace }}/firmware"
+        cp "${{ github.workspace }}/build/esp32-logger.ino.bin" "${{ github.workspace }}/firmware/firmware.bin"
 
     - name: Commit firmware and version bump
       uses: stefanzweifel/git-auto-commit-action@v4
       with:
         commit_message: "Auto-build firmware ${{ steps.bump.outputs.new }}"
-        file_pattern: firmware
-    - name: List build folder
-      run: ls -R build
-
-    - name: Copy firmware to folder
-      run: |
-        mkdir -p firmware
-        cp build/esp32-logger.ino.bin firmware/firmware.bin
+        file_pattern: firmware/*
