@@ -1,18 +1,22 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <Update.h>
-#define UPDATE_FREQUENCY_IN_MS 60*1000 //60sek
+#include "version.h"   // <-- wersja generowana przez workflow
+
+#define UPDATE_FREQUENCY_IN_MS (60 * 1000)  // 60 sekund
 
 const char* WIFI_SSID = "NETIASPOT-nTE2";
 const char* WIFI_PASS = "eJYfChyPUs7aX";
 
-const char* VERSION = "1.0.1";  // aktualna wersja wgrana na ESP32
+const char* VERSION = FW_VERSION;   // <-- dynamiczna wersja firmware
 
-const char* VERSION_URL = "https://raw.githubusercontent.com/Dobry94/esp32-logger/refs/heads/main/firmware/version.txt";
+const char* VERSION_URL  = "https://raw.githubusercontent.com/Dobry94/esp32-logger/refs/heads/main/firmware/version.txt";
 const char* FIRMWARE_URL = "https://raw.githubusercontent.com/Dobry94/esp32-logger/refs/heads/main/firmware/firmware.bin";
 
 void checkForUpdate() {
   HTTPClient http;
+
+  // --- Pobieranie wersji ---
   http.begin(VERSION_URL);
   int code = http.GET();
   if (code != 200) {
@@ -24,6 +28,7 @@ void checkForUpdate() {
   String newVersion = http.getString();
   newVersion.trim();
   http.end();
+
   Serial.print("Current: ");
   Serial.println(VERSION);
   Serial.print("Available: ");
@@ -36,6 +41,7 @@ void checkForUpdate() {
 
   Serial.println("Updating...");
 
+  // --- Pobieranie firmware ---
   http.begin(FIRMWARE_URL);
   code = http.GET();
   if (code != 200) {
@@ -45,8 +51,9 @@ void checkForUpdate() {
   }
 
   int len = http.getSize();
-  WiFiClient * stream = http.getStreamPtr();
+  WiFiClient* stream = http.getStreamPtr();
 
+  // --- Rozpoczęcie aktualizacji ---
   if (!Update.begin(len)) {
     Serial.println("Update.begin failed");
     http.end();
@@ -80,6 +87,7 @@ void checkForUpdate() {
 
 void setup() {
   Serial.begin(115200);
+
   WiFi.begin(WIFI_SSID, WIFI_PASS);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -87,15 +95,15 @@ void setup() {
   }
   Serial.println("\nWiFi connected");
 
-  // na start możesz sprawdzać update:
+  // Sprawdzenie aktualizacji na starcie
   checkForUpdate();
 }
 
 void loop() {
-  // normalna logika
   static unsigned long last = 0;
+
   if (millis() - last >= UPDATE_FREQUENCY_IN_MS) {
     last = millis();
-    checkForUpdate();} /*1min min, 5min urządzenia w terenie, 1h standard IoT, najlepiej ustawiać w parametrach na stronie/excel*/
- // if(millis() - last >=1000)  Serial.println("678"); //test actions
+    checkForUpdate();
+  }
 }
