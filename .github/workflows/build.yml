@@ -50,8 +50,7 @@ jobs:
 
     - name: List build folder
       run: ls -R build
-
-        - name: Copy firmware to folder
+    - name: Copy firmware to folder
       run: |
         mkdir -p firmware
         cp build/esp32-logger.ino.bin firmware/firmware.bin
