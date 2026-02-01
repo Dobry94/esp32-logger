@@ -1,1 +1,46 @@
+name: Build and Auto-Version ESP32 Firmware
 
+on:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Install Arduino CLI
+      uses: arduino/setup-arduino-cli@v1
+
+    - name: Install ESP32 core
+      run: |
+        arduino-cli core update-index
+        arduino-cli core install esp32:esp32
+
+    - name: Read current version
+      id: version
+      run: |
+        VER=$(cat firmware/version.txt)
+        echo "current=$VER" >> $GITHUB_OUTPUT
+
+    - name: Bump version
+      id: bump
+      run: |
+        OLD=${{ steps.version.outputs.current }}
+        IFS='.' read -r MAJ MIN PATCH <<< "$OLD"
+        PATCH=$((PATCH+1))
+        NEW="$MAJ.$MIN.$PATCH"
+        echo "$NEW" > firmware/version.txt
+        echo "new=$NEW" >> $GITHUB_OUTPUT
+
+    - name: Compile firmware
+      run: |
+        arduino
