@@ -46,7 +46,7 @@ jobs:
 
     - name: Compile firmware
       run: |
-        arduino-cli compile --fqbn esp32:esp32:esp32doit-devkit-v1 . --output-dir build --export-binaries
+        arduino-cli compile --fqbn esp32:esp32:esp32 . --output-dir build --export-binaries
 
     - name: List build folder
       run: ls -R build
