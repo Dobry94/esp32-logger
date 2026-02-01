@@ -97,5 +97,5 @@ void loop() {
   if (millis() - last >= 1000) {
     last = millis();
     checkForUpdate();}
-    Serial.println(newVersion); //test actions
+    Serial.println("Siemanko"); //test actions
 }
