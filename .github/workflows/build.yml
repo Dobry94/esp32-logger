@@ -45,6 +45,9 @@ jobs:
         echo "#define FW_VERSION \"${{ steps.bump.outputs.new }}\"" >> version.h
 
     - name: Compile firmware
+    - name: List build folder
+      run: ls -R build
+
       run: |
         arduino-cli compile --fqbn esp32:esp32:esp32doit-devkit-v1 . --output-dir build --export-binaries
 
