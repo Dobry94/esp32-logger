@@ -41,10 +41,7 @@ jobs:
         echo "$NEW" > firmware/version.txt
         echo "new=$NEW" >> $GITHUB_OUTPUT
 
-    - name: Compile firmware
-      run: |
-        arduino
-            - name: Inject version into code
+    - name: Inject version into code
       run: |
         echo "#pragma once" > version.h
         echo "#define FW_VERSION \"${{ steps.bump.outputs.new }}\"" >> version.h
@@ -63,7 +60,7 @@ jobs:
         git config user.name "github-actions"
         git config user.email "github-actions@github.com"
         git add firmware/version.txt version.h firmware/firmware.bin
-        git commit -m "Auto-version: ${{ steps.bump.outputs.new }}"
+        git commit -m "Auto-version: ${{ steps.bump.outputs.new }}" || echo "No changes to commit"
         git push
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
