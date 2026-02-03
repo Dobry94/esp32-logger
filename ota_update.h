@@ -1,3 +1,22 @@
+#pragma once
+
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <Update.h>
+#include "version.h"
+
+#define UPDATE_FREQUENCY_IN_MS (60 * 1000)
+
+static const char* WIFI_SSID = "NETIASPOT-nTE2";
+static const char* WIFI_PASS = "eJYfChyPUs7aX";
+
+static const char* VERSION_URL  = "https://raw.githubusercontent.com/Dobry94/esp32-logger/refs/heads/main/firmware/version.txt";
+static const char* FIRMWARE_URL = "https://raw.githubusercontent.com/Dobry94/esp32-logger/refs/heads/main/firmware/firmware.bin";
+
+static const char* VERSION = FW_VERSION;
+
+#pragma once
+
 inline void checkForUpdate() {
     HTTPClient http;
 
@@ -22,7 +41,6 @@ inline void checkForUpdate() {
     Serial.printf("[OTA] Update available: %s\n", newVersion.c_str());
     Serial.println("[OTA] Downloading firmware...");
 
-    // --- DOWNLOAD ---
     http.begin(FIRMWARE_URL);
     code = http.GET();
     if (code != 200) {
@@ -44,7 +62,6 @@ inline void checkForUpdate() {
     int downloaded = 0;
     int lastPercent = -1;
 
-    // --- DOWNLOADING WITH PROGRESS ---
     while (http.connected() && (downloaded < total)) {
         size_t size = stream->available();
         if (size) {
@@ -57,16 +74,15 @@ inline void checkForUpdate() {
                 lastPercent = percent;
             }
 
-            // --- INSTALLING WITH PROGRESS ---
             size_t written = Update.write(buff, c);
-            int installPercent = (Update.progress() * 100) / total;
-            Serial.printf("[OTA] Installing: %d%%\n", installPercent);
-
             if (written != c) {
                 Serial.println("[OTA] Write error");
                 http.end();
                 return;
             }
+
+            int installPercent = (Update.progress() * 100) / total;
+            Serial.printf("[OTA] Installing: %d%%\n", installPercent);
         }
         delay(1);
     }
