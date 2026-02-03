@@ -103,6 +103,6 @@ inline void handlePeriodicUpdate() {
     if (millis() - last >= UPDATE_FREQUENCY_IN_MS) {
         last = millis();
         checkForUpdate();
-        Serial.println("działa!123");
+        Serial.println("działa w osobnym pliku");
     }
 }
