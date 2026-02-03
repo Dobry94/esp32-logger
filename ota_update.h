@@ -1,27 +1,13 @@
-#pragma once
-
-#include <WiFi.h>
-#include <HTTPClient.h>
-#include <Update.h>
-#include "version.h"
-
-#define UPDATE_FREQUENCY_IN_MS (60 * 1000)
-
-static const char* WIFI_SSID = "NETIASPOT-nTE2";
-static const char* WIFI_PASS = "eJYfChyPUs7aX";
-
-static const char* VERSION_URL  = "https://raw.githubusercontent.com/Dobry94/esp32-logger/refs/heads/main/firmware/version.txt";
-static const char* FIRMWARE_URL = "https://raw.githubusercontent.com/Dobry94/esp32-logger/refs/heads/main/firmware/firmware.bin";
-
-static const char* VERSION = FW_VERSION;
-
 inline void checkForUpdate() {
     HTTPClient http;
 
+    Serial.println("[OTA] Checking for update...");
+
+    // --- Pobieranie wersji ---
     http.begin(VERSION_URL);
     int code = http.GET();
     if (code != 200) {
-        Serial.println("Version check failed");
+        Serial.println("[OTA] Version check failed");
         http.end();
         return;
     }
@@ -30,22 +16,22 @@ inline void checkForUpdate() {
     newVersion.trim();
     http.end();
 
-    Serial.print("Current: ");
-    Serial.println(VERSION);
-    Serial.print("Available: ");
-    Serial.println(newVersion);
+    Serial.printf("[OTA] Current: %s\n", VERSION);
+    Serial.printf("[OTA] Available: %s\n", newVersion.c_str());
 
     if (newVersion == VERSION) {
-        Serial.println("No update needed");
+        Serial.println("[OTA] No update needed");
         return;
     }
 
-    Serial.println("Updating...");
+    Serial.println("[OTA] Update available!");
+    Serial.println("[OTA] Downloading firmware...");
 
+    // --- Pobieranie firmware ---
     http.begin(FIRMWARE_URL);
     code = http.GET();
     if (code != 200) {
-        Serial.println("Firmware download failed");
+        Serial.println("[OTA] Firmware download failed");
         http.end();
         return;
     }
@@ -53,56 +39,37 @@ inline void checkForUpdate() {
     int len = http.getSize();
     WiFiClient* stream = http.getStreamPtr();
 
+    Serial.println("[OTA] Installing...");
+
+    // --- Instalacja ---
     if (!Update.begin(len)) {
-        Serial.println("Update.begin failed");
+        Serial.println("[OTA] Update.begin failed");
         http.end();
         return;
     }
 
     size_t written = Update.writeStream(*stream);
     if (written != len) {
-        Serial.println("Written size mismatch");
+        Serial.println("[OTA] Written size mismatch");
         http.end();
         return;
     }
 
     if (!Update.end()) {
-        Serial.println("Update.end failed");
+        Serial.println("[OTA] Update.end failed");
         http.end();
         return;
     }
 
     if (!Update.isFinished()) {
-        Serial.println("Update not finished");
+        Serial.println("[OTA] Update not finished");
         http.end();
         return;
     }
 
-    Serial.println("Update OK, restarting...");
+    Serial.println("[OTA] Update OK");
+    Serial.println("[OTA] Restarting...");
     http.end();
     delay(1000);
     ESP.restart();
-}
-
-inline void initSystem() {
-    Serial.begin(115200);
-
-    WiFi.begin(WIFI_SSID, WIFI_PASS);
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(".");
-    }
-    Serial.println("\nWiFi connected");
-
-    checkForUpdate();
-}
-
-inline void handlePeriodicUpdate() {
-    static unsigned long last = 0;
-
-    if (millis() - last >= UPDATE_FREQUENCY_IN_MS) {
-        last = millis();
-        checkForUpdate();
-        Serial.println("działa w osobnym pliku");
-    }
 }
