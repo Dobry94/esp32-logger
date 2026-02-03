@@ -2,8 +2,6 @@ inline void checkForUpdate() {
     HTTPClient http;
 
     Serial.println("[OTA] Checking for update...");
-
-    // --- Pobieranie wersji ---
     http.begin(VERSION_URL);
     int code = http.GET();
     if (code != 200) {
@@ -16,18 +14,15 @@ inline void checkForUpdate() {
     newVersion.trim();
     http.end();
 
-    Serial.printf("[OTA] Current: %s\n", VERSION);
-    Serial.printf("[OTA] Available: %s\n", newVersion.c_str());
-
     if (newVersion == VERSION) {
         Serial.println("[OTA] No update needed");
         return;
     }
 
-    Serial.println("[OTA] Update available!");
+    Serial.printf("[OTA] Update available: %s\n", newVersion.c_str());
     Serial.println("[OTA] Downloading firmware...");
 
-    // --- Pobieranie firmware ---
+    // --- DOWNLOAD ---
     http.begin(FIRMWARE_URL);
     code = http.GET();
     if (code != 200) {
@@ -36,40 +31,60 @@ inline void checkForUpdate() {
         return;
     }
 
-    int len = http.getSize();
-    WiFiClient* stream = http.getStreamPtr();
+    int total = http.getSize();
+    WiFiClient *stream = http.getStreamPtr();
 
-    Serial.println("[OTA] Installing...");
-
-    // --- Instalacja ---
-    if (!Update.begin(len)) {
+    if (!Update.begin(total)) {
         Serial.println("[OTA] Update.begin failed");
         http.end();
         return;
     }
 
-    size_t written = Update.writeStream(*stream);
-    if (written != len) {
-        Serial.println("[OTA] Written size mismatch");
-        http.end();
-        return;
+    uint8_t buff[1024];
+    int downloaded = 0;
+    int lastPercent = -1;
+
+    // --- DOWNLOADING WITH PROGRESS ---
+    while (http.connected() && (downloaded < total)) {
+        size_t size = stream->available();
+        if (size) {
+            int c = stream->readBytes(buff, ((size > sizeof(buff)) ? sizeof(buff) : size));
+            downloaded += c;
+
+            int percent = (downloaded * 100) / total;
+            if (percent != lastPercent) {
+                Serial.printf("[OTA] Downloading: %d%%\n", percent);
+                lastPercent = percent;
+            }
+
+            // --- INSTALLING WITH PROGRESS ---
+            size_t written = Update.write(buff, c);
+            int installPercent = (Update.progress() * 100) / total;
+            Serial.printf("[OTA] Installing: %d%%\n", installPercent);
+
+            if (written != c) {
+                Serial.println("[OTA] Write error");
+                http.end();
+                return;
+            }
+        }
+        delay(1);
     }
+
+    http.end();
 
     if (!Update.end()) {
         Serial.println("[OTA] Update.end failed");
-        http.end();
         return;
     }
 
     if (!Update.isFinished()) {
         Serial.println("[OTA] Update not finished");
-        http.end();
         return;
     }
 
     Serial.println("[OTA] Update OK");
     Serial.println("[OTA] Restarting...");
-    http.end();
     delay(1000);
     ESP.restart();
 }
