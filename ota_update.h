@@ -7,8 +7,11 @@
 
 #define UPDATE_FREQUENCY_IN_MS (60 * 1000)
 
-static const char* WIFI_SSID = "NETIASPOT-nTE2";
-static const char* WIFI_PASS = "eJYfChyPUs7aX";
+static const char* WIFI_SSID = "HONOR 200 Pro";
+static const char* WIFI_PASS = "bardzociezkiehaslo";
+
+//static const char* WIFI_SSID = "NETIASPOT-nTE2";
+//static const char* WIFI_PASS = "eJYfChyPUs7aX";
 
 static const char* VERSION_URL  = "https://raw.githubusercontent.com/Dobry94/esp32-logger/refs/heads/main/firmware/version.txt";
 static const char* FIRMWARE_URL = "https://raw.githubusercontent.com/Dobry94/esp32-logger/refs/heads/main/firmware/firmware.bin";
